@@ -8,7 +8,7 @@ model = dict(
     backbone=dict(
         type='KerasBackbone',
         model_name='ResNet50V1',
-        weights_path='weights/resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5',
+        weights_path='/shared/data/weights/resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5',
         weight_decay=1e-5
     ),
     neck=dict(
@@ -65,7 +65,7 @@ test_cfg = dict(
 )
 # dataset settings
 dataset_type = 'CocoDataset'
-data_root = '/deep-learning-models/models/vision/detection/data/'
+data_root = '/shared/data/coco'
 data = dict(
     imgs_per_gpu=4,
     train=dict(
@@ -132,7 +132,7 @@ log_config = dict(
     ])
 # yapf:enable
 # runtime settings
-total_epochs = 12
+total_epochs = 1
 log_level = 'INFO'
 work_dir = './work_dirs/faster_rcnn_r50_fpn_1x_coco'
 load_from = None
