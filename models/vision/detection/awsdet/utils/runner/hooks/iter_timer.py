@@ -30,6 +30,6 @@ class IterTimerHook(Hook):
     def every_n_iters(self, runner, n):
         if super(IterTimerHook, self).every_n_iters(runner, n):
             if self.rank == 0:
-                print("Average iteration time till iteration {} is {} ".format(self.iter_count, (sum(self.timer) / len(self.timer))))
+                print("Current step time is {}, Average iteration time till iteration {} is {} ".format(self.timer[-1], self.iter_count, (sum(self.timer) / len(self.timer))))
 
 
