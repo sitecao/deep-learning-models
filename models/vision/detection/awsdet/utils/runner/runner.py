@@ -243,9 +243,12 @@ class Runner(object):
             raise TypeError('"args" must be either a Hook object'
                             ' or dict, not {}'.format(type(args)))
 
-    def call_hook(self, fn_name):
+    def call_hook(self, fn_name, args=None):
         for hook in self._hooks:
-            getattr(hook, fn_name)(self)
+            if args:
+                getattr(hook, fn_name)(self, **args)
+            else:
+                getattr(hook, fn_name)(self)
 
 
     def load_checkpoint(self, checkpoint_dir):
@@ -355,8 +358,9 @@ class Runner(object):
             self.outputs = outputs
             self.call_hook('after_train_iter')
             self._iter += 1
+            self.call_hook('every_n_iters', {'n': 20})
             debug_on_train_every_iter = 1000
-            if i > 0 and i % debug_on_train_every_iter == 0:
+            if False and i > 0 and i % debug_on_train_every_iter == 0:
                 self.run_eval_step(data_batch)
             if i+1 >= self.num_examples: # for case where num_examples is deliberately made small to test
                 self._inner_iter = 0
@@ -468,3 +472,4 @@ class Runner(object):
         # self.register_hook(WeightsMonitorHook())
         if log_config is not None:
             self.register_logger_hooks(log_config)
+
