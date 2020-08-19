@@ -3,7 +3,7 @@ import time
 
 from .hook import Hook
 from ..dist_utils import get_dist_info
-
+import math
 
 class IterTimerHook(Hook):
 
@@ -31,5 +31,8 @@ class IterTimerHook(Hook):
         if super(IterTimerHook, self).every_n_iters(runner, n):
             if self.rank == 0:
                 print("Current step time is {}, Average iteration time till iteration {} is {} ".format(self.timer[-1], self.iter_count, (sum(self.timer) / len(self.timer))))
+                print ("p50 step time is {}".format(self.percentile(50)))
 
-
+    def percentile(self, percentile):
+        size = len(self.timer)
+        return sorted(self.timer)[int(math.ceil((size * percentile) / 100)) - 1]
