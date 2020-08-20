@@ -519,7 +519,9 @@ def main():
         if i == 1:
             if herring.rank() == 0 and loaded_optimizer_weights is not None:
                 optimizer.set_weights(loaded_optimizer_weights)
+            print (" RANK {} is broadcasting".format(herring.rank()))
             herring.broadcast_variables(model.variables + optimizer.variables(), root_rank=0)
+            print(" RANK {} is done broadcasting".format(herring.rank()))
             # herring.broadcast_variables(optimizer.variables(), root_rank=0)
             i = optimizer.get_weights()[0]
 
