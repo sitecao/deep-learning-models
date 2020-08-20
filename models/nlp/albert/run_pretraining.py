@@ -187,7 +187,7 @@ def allreduce(model, optimizer, gradient_accumulator, loss, mlm_loss, mlm_acc, s
     )
 
     grads = [
-        herring.allreduce(grad, param_idx=idx, num_params=len(grads), use_fp16=True) if grad is not None else None
+        herring.allreduce(grad, param_index=idx, num_params=len(grads), use_fp16=True) if grad is not None else None
         for idx, grad in enumerate(grads)
     ]
 
