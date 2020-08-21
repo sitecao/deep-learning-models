@@ -2,12 +2,7 @@
 cd /shared/deep-learning-models/models/nlp/
 export PYTHONPATH=${PYTHONPATH}:${PWD}
 
-herringrun \
---singlenode \
--x LD_LIBRARY_PATH \
--x PATH \
--x NCCL_DEBUG=INFO \
--x PYTHONPATH \
+herringsinglenode \
 bash /shared/deep-learning-models/models/nlp/albert/launch.sh \
 python /shared/deep-learning-models/models/nlp/albert/run_pretraining.py \
 --train_dir=/shared/data/albert/tfrecords/train/max_seq_len_512_max_predictions_per_seq_20_masked_lm_prob_15 \

@@ -384,8 +384,6 @@ def main():
     max_grad_norm = train_args.max_grad_norm
 
     gpus = tf.config.list_physical_devices("GPU")
-    for gpu in gpus:
-        tf.config.experimental.set_memory_growth(gpu, True)
     if gpus:
         tf.config.set_visible_devices(gpus[herring.local_rank()], "GPU")
     # XLA, AutoGraph

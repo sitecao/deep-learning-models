@@ -2,20 +2,12 @@
 cd /shared/deep-learning-models/models/nlp/
 export PYTHONPATH=${PYTHONPATH}:${PWD}
 
-/opt/amazon/openmpi/bin/mpirun \
---allow-run-as-root \
---mca plm_rsh_no_tree_spawn 1 \
---tag-output \
---hostfile /shared/hosts_16 \
--N 8 \
--mca btl_tcp_if_exclude lo,docker0 \
+herringrun \
 -x LD_LIBRARY_PATH \
 -x PATH \
 -x FI_PROVIDER="efa" \
 -x NCCL_DEBUG=INFO \
---oversubscribe \
 -x PYTHONPATH \
-bash /shared/deep-learning-models/models/nlp/albert/launch.sh \
 python /shared/deep-learning-models/models/nlp/albert/run_pretraining.py \
 --train_dir=/shared/data/albert/tfrecords/train/max_seq_len_512_max_predictions_per_seq_20_masked_lm_prob_15 \
 --val_dir=/shared/data/albert/tfrecords/validation/max_seq_len_512_max_predictions_per_seq_20_masked_lm_prob_15 \
