@@ -2,7 +2,7 @@
 cd /shared/deep-learning-models/models/nlp/
 export PYTHONPATH=${PYTHONPATH}:${PWD}
 
-herringrun \
+herringrun -n 16 \
 -x LD_LIBRARY_PATH \
 -x PATH \
 -x FI_PROVIDER="efa" \
@@ -15,8 +15,8 @@ python /shared/deep-learning-models/models/nlp/albert/run_pretraining.py \
 --checkpoint_dir=/shared/checkpoints \
 --load_from=scratch \
 --model_type=albert \
---model_size=base \
---per_gpu_batch_size=32 \
+--model_size=large \
+--per_gpu_batch_size=12 \
 --gradient_accumulation_steps=1 \
 --warmup_steps=3125 \
 --total_steps=1000 \
