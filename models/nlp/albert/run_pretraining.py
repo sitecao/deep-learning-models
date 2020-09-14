@@ -64,6 +64,7 @@ from common.utils import (
 
 # See https://github.com/huggingface/transformers/issues/3782; this import must come last
 import herring.tensorflow as herring  # isort:skip
+herring.init()
 
 if is_wandb_available():
     import wandb
@@ -424,6 +425,8 @@ def main():
         # https://stackoverflow.com/questions/9321741/printing-to-screen-and-writing-to-a-file-at-the-same-time
         level = logging.INFO
         format = "%(asctime)-15s %(name)-12s: %(levelname)-8s %(message)s"
+        if not os.path.exists(path_args.log_dir):
+            os.makedirs(path_args.log_dir)
         handlers = [
             logging.FileHandler(
                 os.path.join(path_args.filesystem_prefix, path_args.log_dir, f"{run_name}.log")
