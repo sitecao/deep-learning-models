@@ -503,6 +503,7 @@ def main():
 
     i = 1
     start_time = time.perf_counter()
+    train_start_time = time.perf_counter()
     for batch in train_dataset:
         learning_rate = optimizer.learning_rate(step=tf.constant(i, dtype=tf.float32))
         # weight_decay = wd_schedule(step=tf.constant(i, dtype=tf.float32))
@@ -560,6 +561,10 @@ def main():
                 elapsed_time = time.perf_counter() - start_time
                 if i == 1:
                     logger.info(f"First step: {elapsed_time:.3f} secs")
+                elif is_final_step:
+                    total_time = time.perf_counter - train_start_time
+                    seq_per_sec = i * train_args.per_gpu_batch_size * herring.size() * train_args.gradient_accumulation_steps / total_time
+                    logger.info(f"Final step {i}: {description} -- Average seq_per_sec: {seq_per_sec:.2f} -- Total Time: {total_time}")
                 else:
                     it_per_sec = log_args.log_frequency / elapsed_time
                     logger.info(f"Train step {i} -- {description} -- It/s: {it_per_sec:.2f}")
