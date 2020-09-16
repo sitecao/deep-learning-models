@@ -43,7 +43,6 @@ from transformers import (
     TFBertForPreTraining,
 )
 
-from albert.run_squad import get_squad_results_while_pretraining
 from common.arguments import (
     DataTrainingArguments,
     LoggingArguments,
@@ -534,6 +533,7 @@ def main():
         )
         # Squad requires all the ranks to train, but results are only returned on rank 0
         if do_squad:
+            from albert.run_squad import get_squad_results_while_pretraining
             squad_results = get_squad_results_while_pretraining(
                 model=model,
                 tokenizer=tokenizer,
