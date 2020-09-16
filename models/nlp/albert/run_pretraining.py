@@ -562,7 +562,7 @@ def main():
                 if i == 1:
                     logger.info(f"First step: {elapsed_time:.3f} secs")
                 elif is_final_step:
-                    total_time = time.perf_counter - train_start_time
+                    total_time = time.perf_counter() - train_start_time
                     seq_per_sec = i * train_args.per_gpu_batch_size * herring.size() * train_args.gradient_accumulation_steps / total_time
                     logger.info(f"Final step {i}: {description} -- Average seq_per_sec: {seq_per_sec:.2f} -- Total Time: {total_time}")
                 else:
