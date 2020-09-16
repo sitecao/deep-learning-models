@@ -43,7 +43,6 @@ from transformers import (
     TFBertForPreTraining,
 )
 
-from albert.run_squad import get_squad_results_while_pretraining
 from common.arguments import (
     DataTrainingArguments,
     LoggingArguments,
@@ -64,6 +63,7 @@ from common.utils import (
 
 # See https://github.com/huggingface/transformers/issues/3782; this import must come last
 import herring.tensorflow as herring  # isort:skip
+herring.init()
 
 if is_wandb_available():
     import wandb
@@ -187,7 +187,7 @@ def allreduce(model, optimizer, gradient_accumulator, loss, mlm_loss, mlm_acc, s
     )
 
     grads = [
-        herring.allreduce(grad, param_index=idx, num_params=len(grads), use_fp16=True) if grad is not None else None
+        herring.allreduce(grad, param_index=idx, num_params=len(grads), compression=herring.Compression.fp16) if grad is not None else None
         for idx, grad in enumerate(grads)
     ]
 
@@ -424,6 +424,8 @@ def main():
         # https://stackoverflow.com/questions/9321741/printing-to-screen-and-writing-to-a-file-at-the-same-time
         level = logging.INFO
         format = "%(asctime)-15s %(name)-12s: %(levelname)-8s %(message)s"
+        if not os.path.exists(path_args.log_dir):
+            os.makedirs(path_args.log_dir)
         handlers = [
             logging.FileHandler(
                 os.path.join(path_args.filesystem_prefix, path_args.log_dir, f"{run_name}.log")
@@ -499,6 +501,7 @@ def main():
 
     i = 1
     start_time = time.perf_counter()
+    train_start_time = time.perf_counter()
     for batch in train_dataset:
         learning_rate = optimizer.learning_rate(step=tf.constant(i, dtype=tf.float32))
         # weight_decay = wd_schedule(step=tf.constant(i, dtype=tf.float32))
@@ -518,7 +521,9 @@ def main():
             if herring.rank() == 0 and loaded_optimizer_weights is not None:
                 optimizer.set_weights(loaded_optimizer_weights)
             print (" RANK {} is broadcasting".format(herring.rank()))
-            herring.broadcast_variables(model.variables + optimizer.variables(), root_rank=0)
+            #herring.broadcast_variables(model.variables + optimizer.variables(), root_rank=0)
+            herring.broadcast_variables(model.variables, root_rank=0)
+            herring.broadcast_variables(optimizer.variables(), root_rank=0)
             print(" RANK {} is done broadcasting".format(herring.rank()))
             # herring.broadcast_variables(optimizer.variables(), root_rank=0)
             i = optimizer.get_weights()[0]
@@ -529,6 +534,7 @@ def main():
         )
         # Squad requires all the ranks to train, but results are only returned on rank 0
         if do_squad:
+            from albert.run_squad import get_squad_results_while_pretraining
             squad_results = get_squad_results_while_pretraining(
                 model=model,
                 tokenizer=tokenizer,
@@ -562,6 +568,10 @@ def main():
                 elapsed_time = time.perf_counter() - start_time
                 if i == 1:
                     logger.info(f"First step: {elapsed_time:.3f} secs")
+                elif is_final_step:
+                    total_time = time.perf_counter() - train_start_time
+                    seq_per_sec = i * train_args.per_gpu_batch_size * herring.size() * train_args.gradient_accumulation_steps / total_time
+                    logger.info(f"Final step {i}: {description} -- Average seq_per_sec: {seq_per_sec:.2f} -- Total Time: {total_time}")
                 else:
                     it_per_sec = log_args.log_frequency / elapsed_time
                     logger.info(f"Train step {i} -- {description} -- It/s: {it_per_sec:.2f}")
