@@ -25,7 +25,7 @@ from transformers.data.processors.squad import (
 from common.arguments import ModelArguments
 
 # See https://github.com/huggingface/transformers/issues/3782; this import must come last
-import herring.tensorflow as herring  # isort:skip
+import smdistributed.dataparallel.tensorflow as herring  # isort:skip
 
 try:
     import wandb
