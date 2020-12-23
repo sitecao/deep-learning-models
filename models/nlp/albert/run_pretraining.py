@@ -21,6 +21,7 @@ large:
 
 A training run of 125k steps is 125k/(1.72 * 3600) ~= 20 hours for base trained on 512seq.
 """
+from distutils.version import LooseVersion
 
 import datetime
 import gc
@@ -33,6 +34,7 @@ from typing import Tuple
 
 import numpy as np
 import tensorflow as tf
+_PRE_TF_2_4_0 = LooseVersion(tf.__version__) < LooseVersion('2.4.0')
 import tqdm
 from transformers import (
     AutoConfig,
@@ -387,6 +389,8 @@ def main():
     max_grad_norm = train_args.max_grad_norm
 
     gpus = tf.config.list_physical_devices("GPU")
+    for gpu in gpus:
+        tf.config.experimental.set_memory_growth(gpu, True)
     if gpus:
         tf.config.set_visible_devices(gpus[herring.local_rank()], "GPU")
     # XLA, AutoGraph
@@ -508,7 +512,7 @@ def main():
     for batch in train_dataset:
         learning_rate = optimizer.learning_rate(step=tf.constant(i, dtype=tf.float32))
         # weight_decay = wd_schedule(step=tf.constant(i, dtype=tf.float32))
-        loss_scale = optimizer.loss_scale()
+        loss_scale = optimizer.loss_scale() if _PRE_TF_2_4_0 else optimizer.loss_scale
         loss, mlm_loss, mlm_acc, sop_loss, sop_acc, grad_norm, weight_norm = train_step(
             model=model,
             optimizer=optimizer,
