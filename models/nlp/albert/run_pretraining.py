@@ -68,10 +68,7 @@ import smdistributed.dataparallel.tensorflow as smddp  # isort:skip
 
 # TODO : Change to obfuscate smddpcommon. This code does not use GradientTape, so need to pass it like this.
 bucket_cap_bytes = int(64 * 1024 * 1024)
-if _PRE_TF_2_4_0:
-    import herringcommon as hc
-else:
-    import smddpcommon as hc
+import smddpcommon as hc
 hc.setBucketSize(bucket_cap_bytes)
 
 smddp.init()
