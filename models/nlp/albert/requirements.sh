@@ -5,7 +5,6 @@ pip install --no-cache-dir \
         colorama==0.4.3 \
         pandas \
         apache_beam \
-        pyarrow==0.16 \
         git+https://github.com/HerringForks/transformers.git@v42 \
         datasets==1.2.1 \
         tokenizers==0.9.4 \
