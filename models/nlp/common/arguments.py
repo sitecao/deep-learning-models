@@ -37,6 +37,7 @@ class TrainingArguments:
     """ Related to the training loop. """
 
     seed: int = field(default=42)
+    bucket_cap_mb: int = field(default=64)
     # TODO: Change this to per_gpu_train_batch_size
     per_gpu_batch_size: int = field(default=32)
     gradient_accumulation_steps: int = field(
