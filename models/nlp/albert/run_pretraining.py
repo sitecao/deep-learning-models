@@ -65,11 +65,7 @@ from common.utils import (
 
 # See https://github.com/huggingface/transformers/issues/3782; this import must come last
 import smdistributed.dataparallel.tensorflow as smddp  # isort:skip
-
-# TODO : Change to obfuscate smddpcommon. This code does not use GradientTape, so need to pass it like this.
-bucket_cap_bytes = int(64 * 1024 * 1024)
 import smddpcommon as hc
-hc.setBucketSize(bucket_cap_bytes)
 
 smddp.init()
 
@@ -406,6 +402,13 @@ def main():
     disable_tqdm = is_sagemaker
     global max_grad_norm
     max_grad_norm = train_args.max_grad_norm
+
+    # TODO : Change to obfuscate smddpcommon. This code does not use GradientTape, so need to pass it like this.
+    if train_args.bucket_cap_mb:
+        bucket_cap_bytes = int(train_args.bucket_cap_mb * 1024 * 1024)
+    else:
+        bucket_cap_bytes = int(64 * 1024 * 1024)
+    hc.setBucketSize(bucket_cap_bytes)
 
     gpus = tf.config.list_physical_devices("GPU")
     for gpu in gpus:
